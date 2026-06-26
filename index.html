@@ -115,13 +115,13 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 .card-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
-  opacity:.42;transition:opacity .25s;
+  opacity:.85;transition:opacity .25s;
 }
-.card:hover .card-bg{opacity:.6;}
+.card:hover .card-bg{opacity:1;}
 
 .card-overlay{
   position:absolute;inset:0;
-  background:var(--card-overlay);
+  background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.2) 55%,transparent 100%);
 }
 
 .card-type{
@@ -135,7 +135,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 
 .card-seen-icon{
   position:absolute;top:8px;right:8px;
-  width:20px;height:20px;
+  width:24px;height:24px;
+  background:rgba(0,0,0,0.18);
+  border-radius:50%;
+  padding:2px;
+  box-sizing:border-box;
 }
 
 .card-content{
@@ -155,10 +159,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 }
 .detail-page::before{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(to bottom,
-    rgba(0,0,0,0.55) 0%,
-    rgba(0,0,0,0.45) 40%,
-    rgba(0,0,0,0.75) 100%);
+  background:rgba(0,0,0,0.82);
   z-index:0;
 }
 .detail-header{
@@ -184,19 +185,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 .detail-title{font-size:22px;font-weight:500;text-align:center;margin-bottom:4px;line-height:1.3;color:#fff;}
 .detail-year{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:20px;}
 
-.info-card{margin-bottom:20px;text-align:center;}
+.info-card{margin-bottom:0;text-align:center;}
 .detail-character{font-size:15px;color:rgba(255,255,255,.9);margin-bottom:6px;}
 .detail-runtime{font-size:13px;color:rgba(255,255,255,.55);}
 
 /* seen toggle */
-.seen-toggle{display:flex;gap:6px;}
+.seen-toggle{display:flex;gap:12px;flex-wrap:wrap;padding-left:0;margin-left:-4px;}
 .seen-btn{
-  padding:6px 16px;font-family:var(--sans);font-size:12px;
-  border-radius:20px;border:0.5px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);
-  cursor:pointer;transition:all .15s;backdrop-filter:blur(4px);
+  width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:none;background:none;
+  cursor:pointer;transition:all .15s;padding:4px;box-sizing:border-box;
 }
-.seen-btn.active{background:#fff;color:#111;border-color:#fff;}
+.seen-btn img{width:100%;height:100%;opacity:.5;}
+.seen-btn.active img{opacity:1;filter:brightness(10);}
 
 /* memo */
 .memo-label{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:7px;}
@@ -291,11 +293,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
       <h1 class="detail-title" id="detail-title"></h1>
       <p class="detail-year" id="detail-year"></p>
       <div id="detail-info"></div>
-      <div style="display:flex;justify-content:center;margin-bottom:24px;">
+      <div style="margin-top:12px;margin-bottom:24px;">
         <div class="seen-toggle">
-          <button class="seen-btn" id="btn-unseen" onclick="setSeen('unseen')">안 봄</button>
-          <button class="seen-btn" id="btn-watching" onclick="setSeen('watching')">진행중</button>
-          <button class="seen-btn" id="btn-seen" onclick="setSeen('seen')">봄</button>
+          <button class="seen-btn" id="btn-unseen" onclick="setSeen('unseen')">
+            <img class="seen-icon" data-grey="images/icons/circle-outline_grey.png" data-white="images/icons/circle-outline.png" src="https://eightftunder.github.io/516-filmography/images/icons/circle-outline_grey.png" width="14" height="14" style=""></button>
+          <button class="seen-btn" id="btn-watching" onclick="setSeen('watching')">
+            <img class="seen-icon" data-grey="images/icons/watching_grey.png" data-white="images/icons/watching.png" src="https://eightftunder.github.io/516-filmography/images/icons/watching_grey.png" width="14" height="14" style=""></button>
+          <button class="seen-btn" id="btn-seen" onclick="setSeen('seen')">
+            <img class="seen-icon" data-grey="images/icons/checkmark-circle_grey.png" data-white="images/icons/checkmark-circle.png" src="https://eightftunder.github.io/516-filmography/images/icons/checkmark-circle_grey.png" width="14" height="14" style=""></button>
         </div>
       </div>
       <div class="memo-label" style="margin-bottom:8px">메모</div>
@@ -377,10 +382,10 @@ function renderGrid(list){
   list.forEach(w=>{
     const state=getSeenState(w.id);
     const seenIcon=state==='seen'
-      ?`<img class="card-seen-icon" src="${BASE}images/icons/checkmark-circle.png" alt="봄" onerror="this.style.display='none'">`
+      ?`<img class="card-seen-icon" src="${BASE}images/icons/checkmark-circle_grey.png" alt="봄" onerror="this.style.display='none'">`
       :state==='watching'
-      ?`<img class="card-seen-icon" src="${BASE}images/icons/watching.png" alt="진행중" onerror="this.style.display='none'">`
-      :`<img class="card-seen-icon" src="${BASE}images/icons/circle-outline.png" alt="안봄" style="opacity:.35" onerror="this.style.display='none'">`;
+      ?`<img class="card-seen-icon" src="${BASE}images/icons/watching_grey.png" alt="진행중" onerror="this.style.display='none'">`
+      :`<img class="card-seen-icon" src="${BASE}images/icons/circle-outline_grey.png" alt="안봄" onerror="this.style.display='none'">`;
     const card=document.createElement('div');
     card.className='card';
     card.dataset.id=w.id;
@@ -432,9 +437,13 @@ function goDetail(id){
 }
 
 function updateSeenBtns(state){
-  document.getElementById('btn-seen').classList.toggle('active',state==='seen');
-  document.getElementById('btn-watching').classList.toggle('active',state==='watching');
-  document.getElementById('btn-unseen').classList.toggle('active',state==='unseen');
+  ['btn-seen','btn-watching','btn-unseen'].forEach(id=>{
+    const btn=document.getElementById(id);
+    const isActive=(id==='btn-seen'&&state==='seen')||(id==='btn-watching'&&state==='watching')||(id==='btn-unseen'&&state==='unseen');
+    btn.classList.toggle('active',isActive);
+    const icon=btn.querySelector('.seen-icon');
+    if(icon) icon.src=BASE+(isActive?icon.dataset.white:icon.dataset.grey);
+  });
 }
 
 function setSeen(val){
