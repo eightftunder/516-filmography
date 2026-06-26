@@ -1,7 +1,7 @@
 {
   "name": "516 filmography",
   "short_name": "516",
-  "icons": [{ "src": "images/icons/apple.png", "sizes": "any", "type": "image/png" }],
+  "icons": [{ "src": "images/icons/app-icon.png", "sizes": "any", "type": "image/png" }],
   "display": "standalone",
   "background_color": "#faf9f7",
   "theme_color": "#faf9f7"
