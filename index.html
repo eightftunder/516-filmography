@@ -115,7 +115,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 .card-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
-  opacity: 1;transition:opacity .25s;
+  opacity: .92;transition:opacity .25s;
 }
 .card:hover .card-bg{opacity:1;}
 
@@ -408,8 +408,7 @@ const works=[
   {id:30,title:'클라이맥스',year:2026,type:'드라마',episodes:'8회',character:'방태섭',card:'images/climax_thumbnail.webp',poster:'images/climax_poster.webp',
    filter:'saturate(0.85) sepia(0.125)'
   },
-];
-
+]
 // ── 로컬스토리지 ──
 function getSeenState(id){
   const v=localStorage.getItem('seen_'+id);
@@ -480,7 +479,9 @@ function renderGrid(list){
     const card=document.createElement('div');
     card.className='card';
     card.dataset.id=w.id;
-    const bgStyle='background-image:url('+BASE+(w.card||w.poster)+')' + (w.filter?';filter:'+w.filter:'');
+    const baseFilter='brightness(1.1) contrast(0.925)';
+    const filterVal=baseFilter+(w.filter?' '+w.filter:'');
+    const bgStyle='background-image:url('+BASE+(w.card||w.poster)+');filter:'+filterVal;
     card.innerHTML='<div class="card-bg" style="'+bgStyle+'"></div><div class="card-overlay"></div>'+seenIcon+'<div class="card-content"><h2 class="card-title">'+esc(w.title)+'</h2><p class="card-year">'+w.year+'</p></div>';
     card.onclick=()=>goDetail(w.id);
     g.appendChild(card);
