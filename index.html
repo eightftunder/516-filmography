@@ -115,7 +115,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 .card-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
-  opacity:.85;transition:opacity .25s;
+  opacity: 1;transition:opacity .25s;
 }
 .card:hover .card-bg{opacity:1;}
 
@@ -157,6 +157,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
   position:relative;min-height:100vh;
   background-size:cover;background-position:center;
 }
+.detail-page::after{
+  content:'';position:absolute;inset:0;z-index:0;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
 .detail-page::before{
   content:'';position:absolute;inset:0;
   background:rgba(0,0,0,0.82);
@@ -166,12 +170,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
   display:flex;align-items:center;gap:8px;
   padding:20px 24px 18px;
   max-width:var(--max);margin:0 auto;
-  position:relative;z-index:2;
+  position:relative;z-index:3;
 }
 .detail-body{
   max-width:var(--max);margin:0 auto;
   padding:0 24px 60px;
-  position:relative;z-index:2;
+  position:relative;z-index:3;
 }
 .detail-poster-wrap{display:flex;justify-content:center;margin-bottom:20px;}
 .detail-poster{
@@ -248,7 +252,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
           <div class="dropdown-label">시청 여부</div>
           <button class="dropdown-btn active" data-group="seen" data-val="all" onclick="setFilter(this)">전체</button>
           <button class="dropdown-btn" data-group="seen" data-val="seen" onclick="setFilter(this)">본 것</button>
-          <button class="dropdown-btn" data-group="seen" data-val="watching" onclick="setFilter(this)">진행중</button>
+          <button class="dropdown-btn" data-group="seen" data-val="watching" onclick="setFilter(this)">보는 중</button>
           <button class="dropdown-btn" data-group="seen" data-val="unseen" onclick="setFilter(this)">안 본 것</button>
         </div>
       </div>
@@ -314,15 +318,102 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 const BASE='https://eightftunder.github.io/516-filmography/';
 
 const works=[
-  {id:1,title:'앤티크',year:2008,type:'영화',duration:'1h 49m',character:'김진혁',poster:'images/antique_thumbnail.png'},
-  {id:2,title:'좋은 친구들',year:2014,type:'영화',duration:'1h 54m',character:'정인철',poster:'images/confession_thumbnail.png'},
-  {id:3,title:'중증외상센터',year:2025,type:'드라마',episodes:8,character:'백강혁',poster:'images/trauma-center_thumbnail.png'},
+  {id:1,title:'궁',year:2006,type:'드라마',episodes:'24회',character:'이신',card:'images/princess_thumbnail.webp',poster:'images/princess_poster.webp',
+    filter:'contrast(1.05)'
+  },
+  {id:2,title:'마왕',year:2007,type:'드라마',episodes:'20회',character:'오승하',card:'images/lucifer_thumbnail.webp',poster:'images/lucifer_poster.webp',
+    filter:'contrast(0.9)saturate(0.925) sepia(0.15)'
+  },
+  {id:3,title:'서양골동양과자점 앤티크',year:2008,type:'영화',duration:'1h 51m',character:'김진혁',card:'images/antique_thumbnail.webp',poster:'images/antique_poster.webp',
+   filter:' saturate(1.3) brightness(0.975)'
+  },
+  {id:4,title:'키친',year:2009,type:'영화',duration:'1h 42m',character:'박두레',card:'images/kitchen_thumbnail.webp',poster:'images/kitchen_poster.webp',
+    filter:'contrast(1.05)'
+  },
+  {id:5,title:'다섯 손가락',year:2012,type:'드라마',episodes:'30회',character:'유지호',card:'images/five-fingers_thumbnail.webp',poster:'images/five-fingers_poster.webp',
+    //filter:'contrast(1.3) brightness(0.9)'
+  },
+  {id:6,title:'나는 왕이로소이다',year:2012,type:'영화',duration:'2h',character:'충녕/덕칠',card:'images/king_thumbnail.webp',poster:'images/king_poster.webp',
+   //filter:'contrast(1.05)'
+  },
+  {id:7,title:'애정용의자',year:2013,type:'영화',duration:'1h 37m',character:'장한',card:'images/love-suspect_thumbnail.webp',poster:'images/love-suspect_poster.webp',
+    filter:'contrast(1.075) brightness(1.15)'
+  },
+  {id:8,title:'결혼전야',year:2013,type:'영화',duration:'1h 58m',character:'한경수',card:'images/marriage-blue_thumbnail.webp',poster:'images/marriage-blue_poster.webp',
+    //filter:'contrast(1.2) brightness(0.9)'
+  },
+  {id:9,title:'메디컬 탑팀',year:2013,type:'드라마',episodes:'20회',character:'한승재',card:'images/medical_thumbnail.webp',poster:'images/medical_poster.webp',
+    filter:'contrast(1.325) saturate(1.35) brightness(0.85) sepia(0.1)'
+  },
+  {id:10,title:'좋은 친구들',year:2014,type:'영화',duration:'1h 54m',character:'정인철',card:'images/confession_thumbnail.webp',poster:'images/confession_poster.webp',
+    filter:'contrast(1.25) saturate(1.2)'
+  },
+  {id:11,title:'가면',year:2015,type:'드라마',episodes:'20회',character:'최민우',card:'images/mask_thumbnail.webp',poster:'images/mask_poster.webp',
+    filter:'contrast(1.075)'
+  },
+  {id:12,title:'간신',year:2015,type:'영화',duration:'2h 13m',character:'임숭재',card:'images/treacherous_thumbnail.webp',poster:'images/treacherous_poster.webp',
+    filter:'contrast(1.1) saturate(1.45)'
+  },
+  {id:13,title:'아수라',year:2016,type:'영화',duration:'2h 16m',character:'문선모',card:'images/asura_thumbnail.webp',poster:'images/asura_poster.webp',
+  
+  },
+  {id:14,title:'신과함께 - 죄와 벌',year:2017,type:'영화',duration:'2h 19m',character:'해원맥',card:'images/along-gods-1_thumbnail.webp',poster:'images/along-gods-1_poster.webp',
+   filter:'contrast(1.125) saturate(1.125) brightness(1.1)'
+  },
+  {id:15,title:'신과함께 - 인과 연',year:2018,type:'영화',duration:'2h 22m',character:'해원맥',card:'images/along-gods-2_thumbnail.webp',poster:'images/along-gods-2_poster.webp',
+   filter:'saturate(1.1) brightness(1.125)'
+  },
+  {id:16,title:'공작',year:2018,type:'영화',duration:'2h 17m',character:'정무택',card:'images/the-spy_thumbnail.webp',poster:'images/the-spy_poster.webp',
+    //filter:'contrast(1.1) saturate(1)'
+  },
+  {id:17,title:'암수살인',year:2018,type:'영화',duration:'1h 50m',character:'강태오',card:'images/dark-crime_thumbnail.webp',poster:'images/dark-crime_poster.webp',
+    filter:'contrast(1.125) brightness(1.5)'
+  },
+  {id:18,title:'킹덤 S1',year:2019,type:'드라마',episodes:'6회',character:'이창',card:'images/kingdom-1_thumbnail.webp',poster:'images/kingdom-1_poster.webp',
+    //filter:'contrast(1.1) brightness(0.95)'
+  },
+  {id:19,title:'아이템',year:2019,type:'드라마',episodes:'32회',character:'강곤',card:'images/item_thumbnail.webp',poster:'images/item_poster.webp',
+    filter:'contrast(1.3) saturate(1.1) brightness(0.95)'
+  },
+  {id:20,title:'킹덤 S2',year:2020,type:'드라마',episodes:'6회',character:'이창',card:'images/kingdom-2_thumbnail.webp',poster:'images/kingdom-2_poster.webp',
+    filter:'contrast(1.05)'
+  },
+  {id:21,title:'하이에나',year:2020,type:'드라마',episodes:'16회',character:'윤희재',card:'images/hyena_thumbnail.webp',poster:'images/hyena_poster.webp',
+    //filter:'contrast(1.1)'
+  },
+  {id:22,title:'지리산',year:2021,type:'드라마',episodes:'16회',character:'강현조',card:'images/mount-jiri_thumbnail.webp',poster:'images/mount-jiri_poster.webp',
+    filter:'contrast(1.125)'
+  },
+  {id:23,title:'젠틀맨',year:2022,type:'영화',duration:'2h 3m',character:'지현수',card:'images/gentleman_thumbnail.webp',poster:'images/gentleman_poster.webp',
+    filter:'contrast(1.025)'
+  },
+  {id:24,title:'비공식작전',year:2023,type:'영화',duration:'2h 12m',character:'김판수',card:'images/ransomed_thumbnail.webp',poster:'images/ransomed_poster.webp',
+    //filter:'contrast(1.05) '
+  },
+  {id:25,title:'사랑은 외나무다리에서',year:2024,type:'드라마',episodes:'12회',character:'석지원',card:'images/love-enemy_thumbnail.webp',poster:'images/love-enemy_poster.webp',
+   // filter:'contrast(1.1)'
+  },
+  {id:26,title:'탈출: 프로젝트 사일런스',year:2024,type:'영화',duration:'1h 41m',character:'조박',card:'images/project-silence_thumbnail.webp',poster:'images/project-silence_poster.webp',
+   filter:'contrast(1.15) saturate(1.1)'
+  },
+  {id:27,title:'지배종',year:2024,type:'드라마',episodes:'10회',character:'우채운',card:'images/blood-free_thumbnail.webp',poster:'images/blood-free_poster.webp',
+   // filter:'contrast(1.2)'
+  },
+  {id:28,title:'조명가게',year:2024,type:'드라마',episodes:'8회',character:'정원영',card:'images/light-shop_thumbnail.webp',poster:'images/light-shop_poster.webp',
+   filter:'brightness(1.1)'
+  },
+  {id:29,title:'중증외상센터',year:2025,type:'드라마',episodes:'8회',character:'백강혁',card:'images/trauma_thumbnail.webp',poster:'images/trauma_poster.webp',
+   // filter:'contrast(1)'
+  },
+  {id:30,title:'클라이맥스',year:2026,type:'드라마',episodes:'8회',character:'방태섭',card:'images/climax_thumbnail.webp',poster:'images/climax_poster.webp',
+   filter:'saturate(0.85) sepia(0.125)'
+  },
 ];
 
 // ── 로컬스토리지 ──
 function getSeenState(id){
   const v=localStorage.getItem('seen_'+id);
-  if(v==='true') return 'seen';
+  if(v==='true'||v==='seen') return 'seen';
   if(v==='watching') return 'watching';
   return 'unseen';
 }
@@ -389,14 +480,8 @@ function renderGrid(list){
     const card=document.createElement('div');
     card.className='card';
     card.dataset.id=w.id;
-    card.innerHTML=`
-      <div class="card-bg" style="background-image:url('${BASE}${w.poster}')"></div>
-      <div class="card-overlay"></div>
-      ${seenIcon}
-      <div class="card-content">
-        <h2 class="card-title">${esc(w.title)}</h2>
-        <p class="card-year">${w.year}</p>
-      </div>`;
+    const bgStyle='background-image:url('+BASE+(w.card||w.poster)+')' + (w.filter?';filter:'+w.filter:'');
+    card.innerHTML='<div class="card-bg" style="'+bgStyle+'"></div><div class="card-overlay"></div>'+seenIcon+'<div class="card-content"><h2 class="card-title">'+esc(w.title)+'</h2><p class="card-year">'+w.year+'</p></div>';
     card.onclick=()=>goDetail(w.id);
     g.appendChild(card);
   });
@@ -420,11 +505,11 @@ function goDetail(id){
   curId=id;
   const w=works.find(x=>x.id===id);
   if(!w)return;
-  document.getElementById('detail-page').style.backgroundImage=`url('${BASE}${w.poster}')`;
-  document.getElementById('detail-img').src=BASE+w.poster;
+  document.getElementById('detail-page').style.backgroundImage=`url('${BASE}${w.card||w.poster}')`;
+  document.getElementById('detail-img').src=BASE+(w.poster||w.card);
   document.getElementById('detail-title').textContent=w.title;
   document.getElementById('detail-year').textContent=w.year;
-  const duration=w.duration||(w.episodes?w.episodes+'회':'');
+  const duration=w.duration||w.episodes||'';
   const infoEl=document.getElementById('detail-info');
   infoEl.innerHTML=`
     <p class="detail-character">${esc(w.character)} 역</p>
