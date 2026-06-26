@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>516 filmography</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#faf9f7;--surface:#ffffff;
+  --border:rgba(0,0,0,0.08);--border-h:rgba(0,0,0,0.15);
+  --tp:#1a1a1a;--ts:#6b6b6b;--tt:#aaaaaa;
+  --acc:#636366;--acc-l:#f0f0f0;
+  --card-overlay:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.2) 55%,transparent 100%);
+  --sans:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+  --r:10px;--rs:8px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#141414;--surface:#1e1e1e;
+    --border:rgba(255,255,255,0.08);--border-h:rgba(255,255,255,0.15);
+    --tp:#f0f0f0;--ts:#999;--tt:#555;
+    --acc:#aeaeb2;--acc-l:#2c2c2e;
+  }
+}
+html{font-size:16px;-webkit-text-size-adjust:100%;}
+body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100vh;}
+.screen{display:none;}.screen.active{display:block;}
+
+/* ── 헤더 ── */
+.header{
+  display:flex;align-items:center;gap:10px;
+  padding:20px 20px 14px;
+  position:sticky;top:0;
+  background:var(--bg);z-index:20;
+  border-bottom:0.5px solid var(--border);
+}
+.header-icon{width:18px;height:18px;flex-shrink:0;opacity:.7;}
+.header-title{font-size:14px;font-weight:400;color:var(--ts);flex:1;}
+
+/* ── 검색 ── */
+.search-wrap{padding:14px 20px 0;}
+.search-input{
+  width:100%;padding:9px 14px;
+  font-family:var(--sans);font-size:14px;color:var(--tp);
+  background:var(--surface);border:0.5px solid var(--border-h);
+  border-radius:var(--rs);outline:none;
+}
+.search-input:focus{border-color:var(--acc);}
+.search-input::placeholder{color:var(--tt);}
+
+/* ── 아이콘 버튼 ── */
+.icon-btn{
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;border-radius:var(--rs);
+  color:var(--ts);flex-shrink:0;
+}
+.icon-btn:hover{background:var(--acc-l);color:var(--tp);}
+.icon-btn svg{width:18px;height:18px;}
+.icon-btn img{width:20px;height:20px;opacity:.6;}
+
+/* ── 드롭다운 ── */
+.dropdown-wrap{position:relative;}
+.dropdown-menu{
+  display:none;position:absolute;right:0;top:40px;
+  background:var(--surface);border:0.5px solid var(--border-h);
+  border-radius:var(--r);overflow:hidden;
+  min-width:140px;z-index:50;
+  box-shadow:0 4px 16px rgba(0,0,0,.1);
+}
+.dropdown-menu.open{display:block;}
+.dropdown-section{padding:6px 0;border-bottom:0.5px solid var(--border);}
+.dropdown-section:last-child{border-bottom:none;}
+.dropdown-label{font-size:11px;color:var(--tt);padding:6px 14px 2px;letter-spacing:.03em;}
+.dropdown-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:9px 14px;
+  font-family:var(--sans);font-size:14px;color:var(--tp);
+  background:none;border:none;cursor:pointer;text-align:left;
+}
+.dropdown-btn:hover{background:var(--bg);}
+.dropdown-btn.active{color:var(--acc);font-weight:500;}
+.dropdown-btn.active::after{content:'✓';font-size:13px;}
+
+/* ── 그리드 ── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;padding:14px 20px 40px;
+}
+@media(min-width:500px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:720px){.grid{grid-template-columns:repeat(4,1fr);}}
+
+/* ── 카드 ── */
+.card{
+  position:relative;aspect-ratio:2/3;
+  border-radius:var(--r);overflow:hidden;
+  cursor:pointer;background:var(--surface);
+  transition:transform .18s;
+  border:0.5px solid var(--border);
+}
+.card:hover{transform:scale(1.02);}
+.card:active{transform:scale(.98);}
+
+.card-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  opacity:.42;transition:opacity .25s;
+}
+.card:hover .card-bg{opacity:.6;}
+
+.card-overlay{
+  position:absolute;inset:0;
+  background:var(--card-overlay);
+}
+
+.card-type{
+  position:absolute;top:8px;left:8px;
+  font-size:10px;color:rgba(255,255,255,.65);
+  background:rgba(0,0,0,.38);
+  border-radius:4px;padding:2px 6px;
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+
+.card-seen-icon{
+  position:absolute;top:8px;right:8px;
+  width:20px;height:20px;
+}
+
+.card-content{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;padding:10px 12px;
+}
+
+.card-title{font-size:13px;font-weight:500;line-height:1.3;margin-bottom:3px;color:#fff;}
+.card-year{font-size:11px;color:rgba(255,255,255,.5);}
+
+/* ── 상세 화면 ── */
+.detail-fixed-bg{
+  position:fixed;inset:0;z-index:0;
+  background-size:cover;background-position:center;
+  opacity:.15;filter:blur(24px);transform:scale(1.08);
+}
+.detail-fixed-overlay{
+  position:fixed;inset:0;z-index:1;
+  background:linear-gradient(to bottom,
+    color-mix(in srgb,var(--bg) 55%,transparent) 0%,
+    color-mix(in srgb,var(--bg) 88%,transparent) 35%,
+    var(--bg) 65%);
+}
+.detail-page{position:relative;z-index:2;min-height:100vh;}
+
+.detail-header{
+  display:flex;align-items:center;gap:8px;
+  padding:20px 20px 14px;
+  position:sticky;top:0;z-index:10;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.detail-body{padding:0 20px 60px;}
+
+.detail-poster-wrap{display:flex;justify-content:center;margin-bottom:20px;}
+.detail-poster{
+  width:130px;aspect-ratio:2/3;
+  border-radius:var(--r);overflow:hidden;
+  background:var(--surface);
+  box-shadow:0 8px 28px rgba(0,0,0,.35);
+}
+.detail-poster img{width:100%;height:100%;object-fit:cover;}
+
+.detail-title{font-size:20px;font-weight:500;text-align:center;margin-bottom:4px;line-height:1.3;}
+.detail-year{font-size:13px;color:var(--ts);text-align:center;margin-bottom:20px;}
+
+.info-card{
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:var(--r);padding:4px 16px;margin-bottom:12px;
+}
+.info-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:0.5px solid var(--border);
+}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:13px;color:var(--ts);}
+.info-value{font-size:13px;color:var(--tp);text-align:right;}
+
+/* seen toggle */
+.seen-toggle{display:flex;gap:6px;}
+.seen-btn{
+  padding:5px 14px;font-family:var(--sans);font-size:12px;
+  border-radius:20px;border:0.5px solid var(--border-h);
+  background:none;color:var(--ts);cursor:pointer;transition:all .15s;
+}
+.seen-btn.active{background:var(--tp);color:var(--bg);border-color:var(--tp);}
+
+/* memo */
+.memo-label{font-size:12px;color:var(--ts);margin-bottom:7px;}
+.memo-textarea{
+  width:100%;min-height:90px;
+  font-family:var(--sans);font-size:13px;color:var(--tp);
+  background:var(--surface);border:0.5px solid var(--border-h);
+  border-radius:var(--rs);padding:11px 13px;
+  resize:vertical;outline:none;line-height:1.7;
+}
+.memo-textarea:focus{border-color:var(--acc);}
+.memo-textarea::placeholder{color:var(--tt);}
+.save-btn{
+  width:100%;margin-top:8px;padding:11px;
+  font-family:var(--sans);font-size:13px;color:var(--ts);
+  background:var(--surface);border:0.5px solid var(--border-h);
+  border-radius:var(--rs);cursor:pointer;transition:all .15s;
+}
+.save-btn:hover{background:var(--acc-l);}
+
+.empty-state{
+  grid-column:1/-1;text-align:center;
+  padding:60px 0;color:var(--tt);font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<!-- ① 메인 -->
+<div class="screen active" id="s-main">
+  <div class="header">
+    <svg class="header-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="m6,11v42h52V11H6Zm12,36h-6v-6h6v6Zm0-12h-6v-6h6v6Zm0-12h-6v-6h6v6Zm22,24h-16v-11h16v11Zm0-19h-16v-11h16v11Zm12,19h-6v-6h6v6Zm0-12h-6v-6h6v6Zm0-12h-6v-6h6v6Z"/>
+    </svg>
+    <span class="header-title">516 filmography</span>
+    <div class="dropdown-wrap">
+      <button class="icon-btn" onclick="toggleDropdown()" id="filter-btn">
+        <img src="https://eightftunder.github.io/516-filmography/images/icons/dropdown.png" alt="필터" id="filter-icon"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <svg style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+      </button>
+      <div class="dropdown-menu" id="filter-menu">
+        <div class="dropdown-section">
+          <div class="dropdown-label">타입</div>
+          <button class="dropdown-btn active" data-group="type" data-val="all" onclick="setFilter(this)">전체</button>
+          <button class="dropdown-btn" data-group="type" data-val="영화" onclick="setFilter(this)">영화</button>
+          <button class="dropdown-btn" data-group="type" data-val="드라마" onclick="setFilter(this)">드라마</button>
+        </div>
+        <div class="dropdown-section">
+          <div class="dropdown-label">시청 여부</div>
+          <button class="dropdown-btn active" data-group="seen" data-val="all" onclick="setFilter(this)">전체</button>
+          <button class="dropdown-btn" data-group="seen" data-val="seen" onclick="setFilter(this)">본 것</button>
+          <button class="dropdown-btn" data-group="seen" data-val="unseen" onclick="setFilter(this)">안 본 것</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" id="search-input" placeholder="제목 검색" oninput="applyFilters()">
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ② 상세 -->
+<div class="screen" id="s-detail">
+  <div class="detail-fixed-bg" id="detail-bg"></div>
+  <div class="detail-fixed-overlay"></div>
+  <div class="detail-page">
+    <div class="detail-header">
+      <button class="icon-btn" onclick="goMain()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-poster-wrap">
+        <div class="detail-poster"><img id="detail-img" src="" alt=""></div>
+      </div>
+      <h1 class="detail-title" id="detail-title"></h1>
+      <p class="detail-year" id="detail-year"></p>
+      <div class="info-card" id="detail-info"></div>
+      <div class="info-card" style="margin-bottom:16px">
+        <div class="info-row">
+          <span class="info-label">시청 여부</span>
+          <div class="seen-toggle">
+            <button class="seen-btn" id="btn-unseen" onclick="setSeen(false)">안 봄</button>
+            <button class="seen-btn" id="btn-seen" onclick="setSeen(true)">봄</button>
+          </div>
+        </div>
+      </div>
+      <div class="memo-label">메모</div>
+      <textarea class="memo-textarea" id="detail-memo" placeholder="메모를 입력하세요..."></textarea>
+      <button class="save-btn" id="save-memo-btn" onclick="saveMemo()">메모 저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE='https://eightftunder.github.io/516-filmography/';
+
+const works=[
+  {id:1,title:'앤티크',year:2008,type:'영화',duration:'1h 49m',character:'김진혁',poster:'images/antique_thumbnail.png'},
+  {id:2,title:'좋은 친구들',year:2014,type:'영화',duration:'1h 54m',character:'정인철',poster:'images/confession_thumbnail.png'},
+  {id:3,title:'중증외상센터',year:2025,type:'드라마',episodes:8,character:'백강혁',poster:'images/trauma-center_thumbnail.png'},
+];
+
+// ── 로컬스토리지 ──
+function getSeen(id){return localStorage.getItem('seen_'+id)==='true';}
+function saveSeen(id,v){localStorage.setItem('seen_'+id,String(v));}
+function getMemo(id){return localStorage.getItem('memo_'+id)||'';}
+function saveLocalMemo(id,t){localStorage.setItem('memo_'+id,t);}
+
+// ── 필터 상태 ──
+let activeType='all', activeSeen='all';
+
+function setFilter(btn){
+  const group=btn.dataset.group, val=btn.dataset.val;
+  document.querySelectorAll(`.dropdown-btn[data-group="${group}"]`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(group==='type') activeType=val;
+  else activeSeen=val;
+  applyFilters();
+}
+
+function applyFilters(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  let list=works;
+  if(activeType!=='all') list=list.filter(w=>w.type===activeType);
+  if(activeSeen==='seen') list=list.filter(w=>getSeen(w.id));
+  else if(activeSeen==='unseen') list=list.filter(w=>!getSeen(w.id));
+  if(q) list=list.filter(w=>w.title.toLowerCase().includes(q));
+  renderGrid(list);
+}
+
+// ── 그리드 ──
+function renderGrid(list){
+  const g=document.getElementById('grid');
+  g.innerHTML='';
+  if(!list.length){
+    g.innerHTML='<div class="empty-state">해당하는 작품이 없어요.</div>';
+    return;
+  }
+  list.forEach(w=>{
+    const seen=getSeen(w.id);
+    const card=document.createElement('div');
+    card.className='card';
+    const seenIcon=seen
+      ?`<img class="card-seen-icon" src="${BASE}images/icons/checkmark-circle.png" alt="봄" onerror="this.style.display='none'">`
+      :`<img class="card-seen-icon" src="${BASE}images/icons/circle-outline.png" alt="안봄" style="opacity:.35" onerror="this.style.display='none'">`;
+    card.innerHTML=`
+      <div class="card-bg" style="background-image:url('${BASE}${w.poster}')"></div>
+      <div class="card-overlay"></div>
+      <span class="card-type">${esc(w.type)}</span>
+      ${seenIcon}
+      <div class="card-content">
+        <h2 class="card-title">${esc(w.title)}</h2>
+        <p class="card-year">${w.year}</p>
+      </div>`;
+    card.onclick=()=>goDetail(w.id);
+    g.appendChild(card);
+  });
+}
+
+// ── 드롭다운 ──
+function toggleDropdown(){
+  document.getElementById('filter-menu').classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.dropdown-wrap'))
+    document.getElementById('filter-menu').classList.remove('open');
+});
+
+// ── 상세 ──
+let curId=null;
+
+function goDetail(id){
+  curId=id;
+  const w=works.find(x=>x.id===id);
+  if(!w)return;
+  document.getElementById('detail-bg').style.backgroundImage=`url('${BASE}${w.poster}')`;
+  document.getElementById('detail-img').src=BASE+w.poster;
+  document.getElementById('detail-title').textContent=w.title;
+  document.getElementById('detail-year').textContent=w.year;
+  const rows=[];
+  rows.push(['타입',w.type]);
+  if(w.duration) rows.push(['러닝타임',w.duration]);
+  if(w.episodes) rows.push(['회차',w.episodes+'회']);
+  rows.push(['캐릭터',w.character]);
+  document.getElementById('detail-info').innerHTML=rows.map(([l,v])=>
+    `<div class="info-row"><span class="info-label">${esc(l)}</span><span class="info-value">${esc(v)}</span></div>`
+  ).join('');
+  updateSeenBtns(getSeen(id));
+  document.getElementById('detail-memo').value=getMemo(id);
+  show('s-detail');
+  window.scrollTo(0,0);
+}
+
+function updateSeenBtns(seen){
+  document.getElementById('btn-seen').classList.toggle('active',seen);
+  document.getElementById('btn-unseen').classList.toggle('active',!seen);
+}
+
+function setSeen(val){
+  saveSeen(curId,val);
+  updateSeenBtns(val);
+  applyFilters();
+}
+
+function saveMemo(){
+  saveLocalMemo(curId,document.getElementById('detail-memo').value);
+  const btn=document.getElementById('save-memo-btn');
+  btn.textContent='저장됨 ✓';
+  setTimeout(()=>btn.textContent='메모 저장',2000);
+}
+
+function goMain(){show('s-main');applyFilters();}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+applyFilters();
+</script>
+</body>
+</html>
