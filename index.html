@@ -30,7 +30,9 @@
 }
 html{font-size:16px;-webkit-text-size-adjust:100%;}
 body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100vh;}
-.screen{display:none;}.screen.active{display:block;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .28s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
 /* ── 헤더 ── */
 .header{
@@ -101,6 +103,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
   grid-template-columns:repeat(2,1fr);
   gap:10px;padding:14px 0 40px;
 }
+body.select-active .grid{padding-bottom:100px;}
 @media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);}}
 
 /* ── 카드 ── */
@@ -230,6 +233,57 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
   grid-column:1/-1;text-align:center;
   padding:60px 0;color:var(--tt);font-size:14px;
 }
+/* 선택 모드 */
+.icon-btn.active-mode{background:var(--acc-l);color:var(--tp);}
+.card.selectable{cursor:pointer;}
+.card.selected{outline:2.5px solid var(--acc);outline-offset:-2.5px;}
+.card-check{
+  position:absolute;top:8px;right:8px;z-index:4;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(0,0,0,.4);border:1.5px solid rgba(255,255,255,.8);
+  display:none;align-items:center;justify-content:center;
+}
+.card.selectable .card-check{display:flex;}
+.card.selected .card-check{background:var(--acc);border-color:var(--acc);}
+.card-check svg{width:14px;height:14px;stroke:#fff;opacity:0;}
+.card.selected .card-check svg{opacity:1;}
+.bulk-fab{
+  display:none;position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(24px + env(safe-area-inset-bottom));z-index:60;
+  padding:13px 26px;border-radius:100px;
+  background:var(--tp);color:var(--bg);
+  font-size:14px;font-weight:500;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  white-space:nowrap;
+}
+body.select-active .bulk-fab{display:block;}
+.bulk-modal-overlay{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.4);
+  align-items:flex-end;justify-content:center;
+}
+.bulk-modal-overlay.show{display:flex;}
+.bulk-modal{
+  width:100%;max-width:var(--max);
+  background:var(--surface);
+  border-radius:18px 18px 0 0;
+  padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  animation:slideUp .22s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.bulk-modal-title{
+  font-size:13px;color:var(--ts);text-align:center;
+  padding-bottom:14px;margin-bottom:6px;
+  border-bottom:0.5px solid var(--border);
+}
+.bulk-modal-btn{
+  display:block;width:100%;padding:15px;
+  font-family:var(--sans);font-size:15px;color:var(--tp);
+  background:none;border:none;cursor:pointer;
+  border-radius:var(--rs);
+}
+.bulk-modal-btn:hover{background:var(--bg);}
+.bulk-modal-btn.cancel{color:var(--ts);margin-top:6px;border-top:0.5px solid var(--border);border-radius:0;}
 .detail-source{
   font-size:11px;color:rgba(255,255,255,.4);
   margin-top:28px;padding-top:16px;text-align:left;
@@ -278,6 +332,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
         </div>
       </div>
     </div>
+    <button class="icon-btn" onclick="toggleSelectMode()" id="select-btn" title="선택">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </button>
   </div>
   </div>
   <div class="page">
@@ -286,6 +343,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
     <input class="search-input" id="search-input" placeholder="제목 검색" oninput="applyFilters()">
   </div>
   <div class="grid" id="grid"></div>
+  </div>
+  <div class="bulk-fab" id="bulk-fab" onclick="openBulkModal()">
+    <span id="bulk-count">0</span>개 변경
+  </div>
+</div>
+
+<!-- 일괄 변경 팝업 -->
+<div class="bulk-modal-overlay" id="bulk-modal" onclick="closeBulkModal(event)">
+  <div class="bulk-modal">
+    <div class="bulk-modal-title">시청 상태 변경</div>
+    <button class="bulk-modal-btn" onclick="bulkSetSeen('seen')">봄</button>
+    <button class="bulk-modal-btn" onclick="bulkSetSeen('watching')">보는 중</button>
+    <button class="bulk-modal-btn" onclick="bulkSetSeen('unseen')">안 봄</button>
+    <button class="bulk-modal-btn cancel" onclick="closeBulkModal()">취소</button>
   </div>
 </div>
 
@@ -686,20 +757,24 @@ const works=[
     source:'@blackoutwith | X'
   },
 ]
-// ── 로컬스토리지 ──
+// ── 로컬스토리지 (안전 래퍼) ──
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function getSeenState(id){
-  const v=localStorage.getItem('seen_'+id);
+  const v=lsGet('seen_'+id);
   if(v==='true'||v==='seen') return 'seen';
   if(v==='watching') return 'watching';
   return 'unseen';
 }
 function getSeen(id){return getSeenState(id)==='seen';}
-function saveSeen(id,v){localStorage.setItem('seen_'+id,v);}
-function getMemo(id){return localStorage.getItem('memo_'+id)||'';}
-function saveLocalMemo(id,t){localStorage.setItem('memo_'+id,t);}
+function saveSeen(id,v){lsSet('seen_'+id,v);}
+function getMemo(id){return lsGet('memo_'+id)||'';}
+function saveLocalMemo(id,t){lsSet('memo_'+id,t);}
 
 // ── 필터/정렬 상태 ──
 let activeType='all', activeSeen='all', activeSort='default';
+let selectMode=false;
+let selectedIds=new Set();
 
 function setSort(btn){
   document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active'));
@@ -755,12 +830,18 @@ function renderGrid(list){
       :`<img class="card-seen-icon" src="${BASE}images/icons/circle-outline_grey.png" alt="안봄" onerror="this.style.display='none'">`;
     const card=document.createElement('div');
     card.className='card';
+    if(selectMode) card.classList.add('selectable');
+    if(selectMode && selectedIds.has(w.id)) card.classList.add('selected');
     card.dataset.id=w.id;
     const baseFilter='brightness(1.1) contrast(0.925)';
     const filterVal=baseFilter+(w.filter?' '+w.filter:'');
     const bgStyle='background-image:url('+BASE+(w.card||w.poster)+');filter:'+filterVal;
-    card.innerHTML='<div class="card-bg" style="'+bgStyle+'"></div><div class="card-overlay"></div>'+seenIcon+'<div class="card-content"><h2 class="card-title">'+esc(w.title)+'</h2><p class="card-year">'+w.year+'</p></div>';
-    card.onclick=()=>goDetail(w.id);
+    const checkBox='<div class="card-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>';
+    card.innerHTML='<div class="card-bg" style="'+bgStyle+'"></div><div class="card-overlay"></div>'+checkBox+(selectMode?'':seenIcon)+'<div class="card-content"><h2 class="card-title">'+esc(w.title)+'</h2><p class="card-year">'+w.year+'</p></div>';
+    card.onclick=()=>{
+      if(selectMode) toggleSelect(w.id);
+      else goDetail(w.id);
+    };
     g.appendChild(card);
   });
 }
@@ -778,8 +859,10 @@ document.addEventListener('click',e=>{
 
 // ── 상세 ──
 let curId=null;
+let mainScrollY=0;
 
 function goDetail(id){
+  mainScrollY=window.scrollY;
   curId=id;
   const w=works.find(x=>x.id===id);
   if(!w)return;
@@ -830,12 +913,59 @@ function saveMemo(){
   setTimeout(()=>btn.textContent='메모 저장',2000);
 }
 
-function goMain(){show('s-main');applyFilters();}
+function goMain(){
+  show('s-main');
+  applyFilters();
+  window.scrollTo(0,mainScrollY);
+}
 
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+}
+
+function toggleSelectMode(){
+  selectMode=!selectMode;
+  selectedIds.clear();
+  document.getElementById('filter-menu').classList.remove('open');
+  document.getElementById('sort-menu').classList.remove('open');
+  document.getElementById('select-btn').classList.toggle('active-mode',selectMode);
+  updateBulkBar();
+  applyFilters();
+}
+
+function toggleSelect(id){
+  if(selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  const card=document.querySelector('.card[data-id="'+id+'"]');
+  if(card) card.classList.toggle('selected',selectedIds.has(id));
+  updateBulkBar();
+}
+
+function updateBulkBar(){
+  document.body.classList.toggle('select-active',selectMode);
+  document.getElementById('bulk-count').textContent=selectedIds.size;
+}
+
+function openBulkModal(){
+  if(!selectedIds.size) return;
+  document.getElementById('bulk-modal').classList.add('show');
+}
+
+function closeBulkModal(e){
+  if(e && e.target.closest('.bulk-modal') && !e.target.classList.contains('bulk-modal-btn')) return;
+  document.getElementById('bulk-modal').classList.remove('show');
+}
+
+function bulkSetSeen(val){
+  if(!selectedIds.size) return;
+  selectedIds.forEach(id=>saveSeen(id,val));
+  selectMode=false;
+  selectedIds.clear();
+  document.getElementById('select-btn').classList.remove('active-mode');
+  document.getElementById('bulk-modal').classList.remove('show');
+  updateBulkBar();
+  applyFilters();
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
