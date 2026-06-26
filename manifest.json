@@ -1,0 +1,8 @@
+{
+  "name": "516 filmography",
+  "short_name": "516",
+  "icons": [{ "src": "images/icons/dropdown.png", "sizes": "any", "type": "image/png" }],
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#faf9f7"
+}
