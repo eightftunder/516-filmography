@@ -77,24 +77,30 @@ body{font-family:var(--sans);background:var(--bg);color:var(--tp);min-height:100
 .dropdown-wrap{position:relative;}
 .dropdown-menu{
   display:none;position:absolute;right:0;top:40px;
-  background:var(--surface);border:0.5px solid var(--border-h);
-  border-radius:var(--r);overflow:hidden;
-  min-width:140px;z-index:50;
-  box-shadow:0 4px 16px rgba(0,0,0,.1);
+  background:var(--surface);
+  border:0.5px solid var(--border-h);
+  border-radius:14px;overflow:hidden;
+  min-width:190px;z-index:50;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);
+  padding:6px;
 }
 .dropdown-menu.open{display:block;}
-.dropdown-section{padding:6px 0;border-bottom:0.5px solid var(--border);}
-.dropdown-section:last-child{border-bottom:none;}
-.dropdown-label{font-size:11px;color:var(--tt);padding:6px 14px 2px;letter-spacing:.03em;}
+.dropdown-section{padding:4px 0;}
+.dropdown-section + .dropdown-section{
+  border-top:0.5px solid var(--border);margin-top:4px;padding-top:8px;
+}
+.dropdown-label{font-size:11px;color:var(--tt);padding:4px 10px 4px;letter-spacing:.03em;}
+.dropdown-chips{display:block;}
 .dropdown-btn{
   display:flex;align-items:center;justify-content:space-between;
-  width:100%;padding:9px 14px;
-  font-family:var(--sans);font-size:14px;color:var(--tp);
+  width:100%;padding:8px 10px;
+  font-family:var(--sans);font-size:14px;color:var(--ts);
   background:none;border:none;cursor:pointer;text-align:left;
+  border-radius:8px;
 }
-.dropdown-btn:hover{background:var(--bg);}
-.dropdown-btn.active{color:var(--acc);font-weight:500;}
-.dropdown-btn.active::after{content:'✓';font-size:13px;}
+.dropdown-btn:hover{background:var(--bg);color:var(--tp);}
+.dropdown-btn.active{color:var(--tp);font-weight:500;}
+.dropdown-btn.active::after{content:'✓';font-size:13px;color:var(--acc);}
 
 /* ── 그리드 ── */
 .grid{
@@ -146,7 +152,7 @@ body.select-active .grid{padding-bottom:40px;}
 .card-seen-icon img{
   width:100%;height:100%;
   filter:brightness(0) invert(1);
-  opacity:.9;
+  opacity:.87;
 }
 
 .card-content{
@@ -255,9 +261,57 @@ body.select-active .grid{padding-bottom:40px;}
   border:none;border-radius:100px;cursor:pointer;white-space:nowrap;
 }
 .detail-source{
-  font-size:11px;color:rgba(255,255,255,.4);
+  font-size:12px;color:rgba(255,255,255,.5);
   margin-top:28px;padding-top:16px;text-align:left;
   border-top:0.5px solid rgba(255,255,255,.12);
+  line-height:1.5;
+}
+.help-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.45);
+  align-items:center;justify-content:center;
+  padding:24px;
+}
+.help-overlay.show{display:flex;}
+.help-modal{
+  width:100%;max-width:420px;max-height:80vh;overflow-y:auto;
+  background:var(--surface);
+  border:0.5px solid var(--border-h);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+.help-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 14px;
+  position:sticky;top:0;background:var(--surface);
+  border-bottom:0.5px solid var(--border);
+}
+.help-title{font-size:15px;font-weight:500;color:var(--tp);}
+.help-close{
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;color:var(--ts);
+  border-radius:8px;flex-shrink:0;
+}
+.help-close:hover{background:var(--bg);color:var(--tp);}
+.help-close svg{width:18px;height:18px;}
+.help-body{padding:18px 20px 22px;}
+.help-item{margin-bottom:18px;}
+.help-item:last-child{margin-bottom:0;}
+.help-item-title{
+  font-size:13px;font-weight:500;color:var(--tp);
+  margin-bottom:5px;
+}
+.help-item p{
+  font-size:13px;color:var(--ts);line-height:1.65;
+}
+.help-link{
+  color:var(--acc);text-decoration:underline;
+  text-underline-offset:2px;
+}
+.src-label{
+  display:block;
+  font-size:10px;color:rgba(255,255,255,.32);
+  margin-bottom:2px;letter-spacing:.02em;
 }
 </style>
 </head>
@@ -275,16 +329,20 @@ body.select-active .grid{padding-bottom:40px;}
       <div class="dropdown-menu" id="filter-menu">
         <div class="dropdown-section">
           <div class="dropdown-label">타입</div>
-          <button class="dropdown-btn active" data-group="type" data-val="all" onclick="setFilter(this)">전체</button>
-          <button class="dropdown-btn" data-group="type" data-val="영화" onclick="setFilter(this)">영화</button>
-          <button class="dropdown-btn" data-group="type" data-val="드라마" onclick="setFilter(this)">드라마</button>
+          <div class="dropdown-chips">
+            <button class="dropdown-btn active" data-group="type" data-val="all" onclick="setFilter(this)">전체</button>
+            <button class="dropdown-btn" data-group="type" data-val="영화" onclick="setFilter(this)">영화</button>
+            <button class="dropdown-btn" data-group="type" data-val="드라마" onclick="setFilter(this)">드라마</button>
+          </div>
         </div>
         <div class="dropdown-section">
           <div class="dropdown-label">시청 여부</div>
-          <button class="dropdown-btn active" data-group="seen" data-val="all" onclick="setFilter(this)">전체</button>
-          <button class="dropdown-btn" data-group="seen" data-val="seen" onclick="setFilter(this)">본 것</button>
-          <button class="dropdown-btn" data-group="seen" data-val="watching" onclick="setFilter(this)">보는 중</button>
-          <button class="dropdown-btn" data-group="seen" data-val="unseen" onclick="setFilter(this)">안 본 것</button>
+          <div class="dropdown-chips">
+            <button class="dropdown-btn active" data-group="seen" data-val="all" onclick="setFilter(this)">전체</button>
+            <button class="dropdown-btn" data-group="seen" data-val="seen" onclick="setFilter(this)">완료</button>
+            <button class="dropdown-btn" data-group="seen" data-val="watching" onclick="setFilter(this)">시청 중</button>
+            <button class="dropdown-btn" data-group="seen" data-val="unseen" onclick="setFilter(this)">미시청</button>
+          </div>
         </div>
       </div>
     </div>
@@ -293,28 +351,35 @@ body.select-active .grid{padding-bottom:40px;}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
       </button>
       <div class="dropdown-menu" id="sort-menu">
-        <div class="dropdown-section" style="border-bottom:none">
+        <div class="dropdown-section">
           <div class="dropdown-label">정렬</div>
-          <button class="dropdown-btn active" data-sort="default" onclick="setSort(this)">기본순</button>
-          <button class="dropdown-btn" data-sort="year-desc" onclick="setSort(this)">최신순</button>
-          <button class="dropdown-btn" data-sort="year-asc" onclick="setSort(this)">오래된순</button>
-          <button class="dropdown-btn" data-sort="title" onclick="setSort(this)">제목순</button>
+          <div class="dropdown-chips">
+            <button class="dropdown-btn active" data-sort="default" onclick="setSort(this)">기본순</button>
+            <button class="dropdown-btn" data-sort="year-desc" onclick="setSort(this)">최신순</button>
+            <button class="dropdown-btn" data-sort="year-asc" onclick="setSort(this)">오래된순</button>
+            <button class="dropdown-btn" data-sort="title" onclick="setSort(this)">제목순</button>
+          </div>
         </div>
       </div>
     </div>
     <button class="icon-btn" onclick="toggleSelectMode()" id="select-btn" title="선택">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     </button>
+    <button class="icon-btn" onclick="openHelp()" id="help-btn" title="도움말">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </button>
     <div class="dropdown-wrap" id="bulk-wrap" style="display:none">
       <button class="bulk-change-btn" onclick="toggleBulkMenu()" id="bulk-change-btn">
         <span id="bulk-count">0</span>개 변경
       </button>
       <div class="dropdown-menu" id="bulk-menu">
-        <div class="dropdown-section" style="border-bottom:none">
+        <div class="dropdown-section">
           <div class="dropdown-label">시청 상태로 변경</div>
-          <button class="dropdown-btn" onclick="bulkSetSeen('seen')">봄</button>
-          <button class="dropdown-btn" onclick="bulkSetSeen('watching')">보는 중</button>
-          <button class="dropdown-btn" onclick="bulkSetSeen('unseen')">안 봄</button>
+          <div class="dropdown-chips">
+            <button class="dropdown-btn" onclick="bulkSetSeen('seen')">완료</button>
+            <button class="dropdown-btn" onclick="bulkSetSeen('watching')">시청 중</button>
+            <button class="dropdown-btn" onclick="bulkSetSeen('unseen')">미시청</button>
+          </div>
         </div>
       </div>
     </div>
@@ -326,6 +391,40 @@ body.select-active .grid{padding-bottom:40px;}
     <input class="search-input" id="search-input" placeholder="제목 검색" oninput="applyFilters()">
   </div>
   <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- 도움말 팝업 -->
+<div class="help-overlay" id="help-overlay" onclick="closeHelp(event)">
+  <div class="help-modal">
+    <div class="help-header">
+      <span class="help-title">516 filmography 안내</span>
+      <button class="help-close" onclick="closeHelp()" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="help-body">
+      <div class="help-item">
+        <div class="help-item-title">웹앱으로 사용하기</div>
+        <p>브라우저에서 '홈 화면에 추가'를 하면 일반앱처럼 사용 가능합니다. 링크로도 이용 가능하지만 웹앱으로 쓰는 걸 추천드려요!</p>
+      </div>
+      <div class="help-item">
+        <div class="help-item-title">자동 업데이트</div>
+        <p>새로운 버전이 나오면 자동으로 업데이트 됩니다.</p>
+      </div>
+      <div class="help-item">
+        <div class="help-item-title">데이터 저장</div>
+        <p>시청 여부 및 메모는 사용하시는 기기에 저장됩니다. 브라우저 기록이나 캐시를 삭제하면 데이터가 사라질 수 있는 점 참고해주세요!!</p>
+      </div>
+      <div class="help-item">
+        <div class="help-item-title">오류 관련</div>
+        <p>앱이 이상하게 작동하면 강제 종료 후 다시 열어보고 그래도 안 되면 앱을 지우고 <a href="https://eightftunder.github.io/516-filmography/" class="help-link" target="_blank" rel="noopener">원래 링크</a>에서 다시 홈 화면에 추가해주세요. (단, 앱을 지우면 저장된 데이터가 사라질 수 있습니다..!)</p>
+      </div>
+      <div class="help-item">
+        <div class="help-item-title">이미지 출처</div>
+        <p>카드 이미지의 출처는 각 작품 상세 페이지 하단에 표기되어 있습니다.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -741,7 +840,9 @@ function getMemo(id){return lsGet('memo_'+id)||'';}
 function saveLocalMemo(id,t){lsSet('memo_'+id,t);}
 
 // ── 필터/정렬 상태 ──
-let activeType='all', activeSeen='all', activeSort='default';
+let activeType=lsGet('pref_type')||'all';
+let activeSeen=lsGet('pref_seen')||'all';
+let activeSort=lsGet('pref_sort')||'default';
 let selectMode=false;
 let selectedIds=new Set();
 
@@ -749,6 +850,7 @@ function setSort(btn){
   document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   activeSort=btn.dataset.sort;
+  lsSet('pref_sort',activeSort);
   document.getElementById('sort-menu').classList.remove('open');
   applyFilters();
 }
@@ -762,8 +864,8 @@ function setFilter(btn){
   const group=btn.dataset.group, val=btn.dataset.val;
   document.querySelectorAll(`.dropdown-btn[data-group="${group}"]`).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if(group==='type') activeType=val;
-  else activeSeen=val;
+  if(group==='type'){ activeType=val; lsSet('pref_type',val); }
+  else { activeSeen=val; lsSet('pref_seen',val); }
   applyFilters();
 }
 
@@ -840,18 +942,19 @@ function goDetail(id){
   document.getElementById('detail-year').textContent=w.year;
   const duration=w.duration||w.episodes||'';
   const infoEl=document.getElementById('detail-info');
-  let srcText='';
-  if(w.source){
-    const isX=w.source.includes('| X');
-    srcText=isX?w.source:'© '+w.source;
-  }
+  const srcRaw=w.source||'';
   infoEl.innerHTML=`
     <p class="detail-character">${esc(w.character)} 역</p>
     <p class="detail-runtime">${esc(duration)}${duration?' · ':''}${w.year}</p>
   `;
   const srcEl=document.getElementById('detail-source');
-  srcEl.textContent=srcText;
-  srcEl.style.display=srcText?'block':'none';
+  if(srcRaw){
+    srcEl.innerHTML=`<span class="src-label">이미지 출처</span>${esc(srcRaw)}`;
+    srcEl.style.display='block';
+  } else {
+    srcEl.innerHTML='';
+    srcEl.style.display='none';
+  }
   updateSeenBtns(getSeenState(id));
   document.getElementById('detail-memo').value=getMemo(id);
   show('s-detail');
@@ -937,7 +1040,45 @@ function bulkSetSeen(val){
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+function openHelp(){
+  document.getElementById('help-overlay').classList.add('show');
+  document.getElementById('filter-menu').classList.remove('open');
+  document.getElementById('sort-menu').classList.remove('open');
+}
+function closeHelp(e){
+  if(e && e.target.closest('.help-modal')) return;
+  document.getElementById('help-overlay').classList.remove('show');
+}
+
+function initPrefsUI(){
+  document.querySelectorAll('.dropdown-btn[data-group="type"]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.val===activeType);
+  });
+  document.querySelectorAll('.dropdown-btn[data-group="seen"]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.val===activeSeen);
+  });
+  document.querySelectorAll('[data-sort]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.sort===activeSort);
+  });
+}
+
+initPrefsUI();
 applyFilters();
+
+// ── Service Worker (자동 업데이트) ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    // 첫 방문(컨트롤러 없음)인지 기록 — 첫 설치 땐 새로고침 안 함
+    const hadController=!!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register(BASE+'sw.js').catch(()=>{});
+    let refreshed=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      if(refreshed||!hadController) return;
+      refreshed=true;
+      window.location.reload();
+    });
+  });
+}
 </script>
 </body>
 </html>
